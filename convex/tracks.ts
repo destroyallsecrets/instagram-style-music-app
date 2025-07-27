@@ -55,13 +55,18 @@ export const getAllTracks = query({
           ? await ctx.storage.getUrl(track.coverArtId)
           : null;
         
-        const user = await ctx.db.get(track.uploadedBy);
+        // Handle cases where user might not exist or be anonymous
+        let uploaderName = "Anonymous User";
+        if (track.uploadedBy) {
+          const user = await ctx.db.get(track.uploadedBy);
+          uploaderName = user?.name || user?.email || "Anonymous User";
+        }
         
         return {
           ...track,
           audioUrl,
           coverArtUrl,
-          uploaderName: user?.name || user?.email || "Unknown User",
+          uploaderName,
         };
       })
     );
