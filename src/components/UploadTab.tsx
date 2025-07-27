@@ -115,5 +115,47 @@ export function UploadTab() {
     }
   };
 
-  // 🧠 Your render logic / JSX layout should invoke `handleAudioFileChange`, `handleCoverArtChange`, and `handleSubmit` as needed.
+<form onSubmit={(e) => { void handleSubmit(e); }}>
+  <label htmlFor="title">Title</label>
+  <input
+    id="title"
+    type="text"
+    value={title}
+    onChange={(e) => setTitle(e.target.value)}
+    placeholder="Track title"
+    title="Enter the name of the track"
+  />
+
+  <label htmlFor="artist">Artist</label>
+  <input
+    id="artist"
+    type="text"
+    value={artist}
+    onChange={(e) => setArtist(e.target.value)}
+    placeholder="Artist name"
+    title="Enter the name of the artist"
+  />
+
+  <label htmlFor="audio-upload">Audio File</label>
+  <input
+    id="audio-upload"
+    type="file"
+    accept="audio/*"
+    ref={audioInputRef}
+    onChange={handleAudioFileChange}
+    title="Choose an audio file to upload"
+  />
+
+  <label htmlFor="cover-upload">Cover Art</label>
+  <input
+    id="cover-upload"
+    type="file"
+    accept="image/*"
+    ref={coverInputRef}
+    onChange={handleCoverArtChange}
+    title="Choose an image for the cover art"
+  />
+
+  <button type="submit">Upload Track</button>
+</form>
 }
