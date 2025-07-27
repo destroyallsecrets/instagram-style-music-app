@@ -1,0 +1,246 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Library, Plus, Play, Music, Heart, Clock, MoreHorizontal } from "lucide-react";
+
+interface Playlist {
+  id: string;
+  name: string;
+  description: string;
+  trackCount: number;
+  duration: string;
+  coverUrl?: string;
+  isLiked?: boolean;
+}
+
+export function PlaylistsTab() {
+  const [playlists] = useState<Playlist[]>([]);
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newPlaylistName, setNewPlaylistName] = useState("");
+  const [newPlaylistDescription, setNewPlaylistDescription] = useState("");
+
+  const handleCreatePlaylist = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPlaylistName.trim()) return;
+    
+    // Here you would typically create the playlist
+    console.log("Creating playlist:", { name: newPlaylistName, description: newPlaylistDescription });
+    
+    setNewPlaylistName("");
+    setNewPlaylistDescription("");
+    setShowCreateModal(false);
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
+      >
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <Library className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold text-slate-900">Your Playlists</h2>
+            <p className="text-slate-600">Create and organize your music collections</p>
+          </div>
+        </div>
+        
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setShowCreateModal(true)}
+          className="btn-primary flex items-center space-x-2"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Create Playlist</span>
+        </motion.button>
+      </motion.div>
+
+      {/* Empty State */}
+      {playlists.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-center py-16"
+        >
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-12 max-w-md mx-auto border border-slate-200/60">
+            <motion.div
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 5, -5, 0]
+              }}
+              transition={{ 
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="text-6xl mb-6"
+            >
+              📚
+            </motion.div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-3">No playlists yet</h3>
+            <p className="text-slate-600 leading-relaxed mb-6">
+              Create your first playlist to organize your favorite tracks
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowCreateModal(true)}
+              className="btn-primary flex items-center space-x-2 mx-auto"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create Playlist</span>
+            </motion.button>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {playlists.map((playlist, index) => (
+            <motion.div
+              key={playlist.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ y: -4 }}
+              className="group bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
+            >
+              {/* Cover Art */}
+              <div className="relative h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                {playlist.coverUrl ? (
+                  <img
+                    src={playlist.coverUrl}
+                    alt={playlist.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Music className="w-16 h-16 text-slate-400" />
+                )}
+                
+                {/* Play Button Overlay */}
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileHover={{ opacity: 1, scale: 1 }}
+                  className="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/40 transition-all duration-300"
+                >
+                  <div className="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
+                    <Play className="w-6 h-6 text-slate-800 ml-1" />
+                  </div>
+                </motion.button>
+                
+                {/* Like Button */}
+                {playlist.isLiked && (
+                  <div className="absolute top-3 right-3">
+                    <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+                      <Heart className="w-4 h-4 text-white fill-current" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-semibold text-lg text-slate-900 truncate">{playlist.name}</h3>
+                  <button type="button" className="text-slate-400 hover:text-slate-600 transition-colors" aria-label="More options">
+                    <MoreHorizontal className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                <p className="text-slate-600 text-sm mb-4 line-clamp-2">{playlist.description}</p>
+                
+                <div className="flex items-center justify-between text-sm text-slate-500">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-1">
+                      <Music className="w-3 h-3" />
+                      <span>{playlist.trackCount} tracks</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Clock className="w-3 h-3" />
+                      <span>{playlist.duration}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
+
+      {/* Create Playlist Modal */}
+      {showCreateModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowCreateModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-bold text-slate-900 mb-4">Create New Playlist</h3>
+            
+            <form onSubmit={handleCreatePlaylist} className="space-y-4">
+              <div>
+                <label htmlFor="playlistName" className="block text-sm font-semibold text-slate-700 mb-2">
+                  Playlist Name *
+                </label>
+                <input
+                  id="playlistName"
+                  type="text"
+                  value={newPlaylistName}
+                  onChange={(e) => setNewPlaylistName(e.target.value)}
+                  className="input-field"
+                  placeholder=""
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="playlistDescription" className="block text-sm font-semibold text-slate-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  id="playlistDescription"
+                  value={newPlaylistDescription}
+                  onChange={(e) => setNewPlaylistDescription(e.target.value)}
+                  className="input-field resize-none"
+                  rows={3}
+                  placeholder=""
+                />
+              </div>
+              
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="flex-1 btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 btn-primary"
+                >
+                  Create
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </div>
+  );
+}

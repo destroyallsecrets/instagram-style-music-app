@@ -15,7 +15,7 @@ export function StreamTab() {
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full mb-4"
         />
-        <p className="text-slate-600 font-medium">Loading amazing tracks...</p>
+        <p className="text-slate-600 font-medium">Loading tracks...</p>
       </div>
     );
   }
@@ -45,14 +45,9 @@ export function StreamTab() {
           </motion.div>
           <h3 className="text-2xl font-bold text-slate-900 mb-3">No tracks yet</h3>
           <p className="text-slate-600 leading-relaxed">
-            The music library is waiting for its first track. 
-            Check back soon for amazing discoveries!
+            No tracks available yet
           </p>
-          <div className="flex items-center justify-center mt-6 space-x-2 text-slate-400">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Coming soon</span>
-            <Sparkles className="w-4 h-4" />
-          </div>
+
         </div>
       </motion.div>
     );
