@@ -1,5 +1,8 @@
 import { useState, useRef } from "react";
 import { toast } from "sonner";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { Id } from "../../convex/_generated/dataModel"; // ✅ Correct Convex type import
 
 export function UploadTab() {
   const [title, setTitle] = useState("");
@@ -10,66 +13,94 @@ export function UploadTab() {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
+  const generateUploadUrl = useMutation(api.tracks.generateUploadUrl);
+  const createTrack = useMutation(api.tracks.createTrack);
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
-    const audioFile = files.find(file => file.type.startsWith("audio/"));
-    const imageFile = files.find(file => file.type.startsWith("image/"));
-
-    if (audioFile) {
-      setAudioFile(audioFile);
-      if (!title) {
-        setTitle(audioFile.name.replace(/\.[^/.]+$/, ""));
-      }
-    }
-    if (imageFile) {
-      setCoverArt(imageFile);
-    }
-  };
+  const validAudioTypes = ["audio/mpeg", "audio/mp3", "audio/wav"];
+  const validImageTypes = ["image/jpeg", "image/png", "image/webp"];
 
   const handleAudioFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && validAudioTypes.includes(file.type)) {
       setAudioFile(file);
-      if (!title) {
-        setTitle(file.name.replace(/\.[^/.]+$/, ""));
-      }
+      if (!title) setTitle(file.name.replace(/\.[^/.]+$/, ""));
+    } else {
+      toast.error("Unsupported audio format");
     }
   };
 
   const handleCoverArtChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && validImageTypes.includes(file.type)) {
       setCoverArt(file);
+    } else {
+      toast.error("Unsupported image format");
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const uploadFile = async (file: File): Promise<Id<"_storage">> => {
+    const uploadUrl = await generateUploadUrl();
+    if (!uploadUrl || typeof uploadUrl !== "string") {
+      throw new Error("Invalid upload URL");
+    }
+
+    const response = await fetch(uploadUrl, {
+      method: "POST",
+      headers: { "Content-Type": file.type },
+      body: file,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`);
+    }
+
+    const { storageId } = await response.json();
+    return storageId as Id<"_storage">;
+  };
+
+  const getAudioDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const audio = document.createElement("audio");
+      const url = URL.createObjectURL(file);
+      audio.addEventListener("loadedmetadata", () => {
+        audio.pause();
+        audio.src = "";
+        URL.revokeObjectURL(url);
+        resolve(audio.duration);
+      });
+      audio.addEventListener("error", () => {
+        URL.revokeObjectURL(url);
+        reject(new Error("Failed to load audio metadata"));
+      });
+      audio.src = url;
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!audioFile || !title || !artist) {
+    if (!audioFile || !title.trim() || !artist.trim()) {
       toast.error("Please fill in all required fields and select an audio file");
       return;
     }
 
-      try {
-        for (let i = 0; i <= 100; i += 10) {
-          setUploadProgress(i);
-          await new Promise(resolve => setTimeout(resolve, 200));
-        }
+    try {
+      toast.info("Uploading audio file...");
+      const audioFileId = await uploadFile(audioFile);
 
-        toast.success("Track uploaded successfully!");
+      toast.info("Getting audio duration...");
+      const duration = await getAudioDuration(audioFile);
+
+      let coverArtId: Id<"_storage"> | undefined;
+      if (coverArt) {
+        toast.info("Uploading cover art...");
+        coverArtId = await uploadFile(coverArt);
+      }
+
+      toast.info("Creating track...");
+      await createTrack({ title, artist, duration, audioFileId, coverArtId });
+
+      toast.success("Track uploaded successfully 🎉");
 
       // Reset form
       setTitle("");
@@ -84,18 +115,5 @@ export function UploadTab() {
     }
   };
 
-  return (
-    <div className="max-w-2xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-8"
-      >
-        {/* Header */}
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Upload className="w-8 h-8 text-white" />
-          </div>
-          <h2 className="text-3xl font-bold text-slate-100 mb-2">Upload Your Music</h2>
-          <p className="text-slate-300">Add new tracks to your collection</p>
-        </div>
+  // 🧠 Your render logic / JSX layout should invoke `handleAudioFileChange`, `handleCoverArtChange`, and `handleSubmit` as needed.
+}
