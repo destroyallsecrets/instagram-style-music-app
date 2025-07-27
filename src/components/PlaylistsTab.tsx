@@ -22,10 +22,10 @@ export function PlaylistsTab() {
   const handleCreatePlaylist = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPlaylistName.trim()) return;
-    
+
     // Here you would typically create the playlist
     console.log("Creating playlist:", { name: newPlaylistName, description: newPlaylistDescription });
-    
+
     setNewPlaylistName("");
     setNewPlaylistDescription("");
     setShowCreateModal(false);
@@ -44,11 +44,11 @@ export function PlaylistsTab() {
             <Library className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-slate-900">Your Playlists</h2>
-            <p className="text-slate-600">Create and organize your music collections</p>
+            <h2 className="text-3xl font-bold text-slate-100">Your Playlists</h2>
+            <p className="text-slate-300">Create and organize your music collections</p>
           </div>
         </div>
-        
+
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -68,13 +68,13 @@ export function PlaylistsTab() {
           transition={{ delay: 0.2 }}
           className="text-center py-16"
         >
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-12 max-w-md mx-auto border border-slate-200/60">
+          <div className="glass rounded-3xl p-12 max-w-md mx-auto">
             <motion.div
-              animate={{ 
+              animate={{
                 scale: [1, 1.1, 1],
                 rotate: [0, 5, -5, 0]
               }}
-              transition={{ 
+              transition={{
                 duration: 3,
                 repeat: Infinity,
                 ease: "easeInOut"
@@ -83,8 +83,8 @@ export function PlaylistsTab() {
             >
               📚
             </motion.div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-3">No playlists yet</h3>
-            <p className="text-slate-600 leading-relaxed mb-6">
+            <h3 className="text-2xl font-bold text-slate-100 mb-3">No playlists yet</h3>
+            <p className="text-slate-300 leading-relaxed mb-6">
               Create your first playlist to organize your favorite tracks
             </p>
             <motion.button
@@ -112,10 +112,10 @@ export function PlaylistsTab() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -4 }}
-              className="group bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
+              className="group glass rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
             >
               {/* Cover Art */}
-              <div className="relative h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+              <div className="relative h-48 bg-gradient-to-br from-slate-700/60 to-slate-800/60 flex items-center justify-center">
                 {playlist.coverUrl ? (
                   <img
                     src={playlist.coverUrl}
@@ -125,7 +125,7 @@ export function PlaylistsTab() {
                 ) : (
                   <Music className="w-16 h-16 text-slate-400" />
                 )}
-                
+
                 {/* Play Button Overlay */}
                 <motion.button
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -136,7 +136,7 @@ export function PlaylistsTab() {
                     <Play className="w-6 h-6 text-slate-800 ml-1" />
                   </div>
                 </motion.button>
-                
+
                 {/* Like Button */}
                 {playlist.isLiked && (
                   <div className="absolute top-3 right-3">
@@ -150,15 +150,15 @@ export function PlaylistsTab() {
               {/* Content */}
               <div className="p-6">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-lg text-slate-900 truncate">{playlist.name}</h3>
-                  <button type="button" className="text-slate-400 hover:text-slate-600 transition-colors" aria-label="More options">
+                  <h3 className="font-semibold text-lg text-slate-100 truncate">{playlist.name}</h3>
+                  <button type="button" className="text-slate-400 hover:text-slate-200 transition-colors" aria-label="More options">
                     <MoreHorizontal className="w-5 h-5" />
                   </button>
                 </div>
-                
-                <p className="text-slate-600 text-sm mb-4 line-clamp-2">{playlist.description}</p>
-                
-                <div className="flex items-center justify-between text-sm text-slate-500">
+
+                <p className="text-slate-300 text-sm mb-4 line-clamp-2">{playlist.description}</p>
+
+                <div className="flex items-center justify-between text-sm text-slate-400">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-1">
                       <Music className="w-3 h-3" />
@@ -187,11 +187,11 @@ export function PlaylistsTab() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+            className="glass-light rounded-2xl p-6 w-full max-w-md shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-xl font-bold text-slate-900 mb-4">Create New Playlist</h3>
-            
+
             <form onSubmit={handleCreatePlaylist} className="space-y-4">
               <div>
                 <label htmlFor="playlistName" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -203,11 +203,11 @@ export function PlaylistsTab() {
                   value={newPlaylistName}
                   onChange={(e) => setNewPlaylistName(e.target.value)}
                   className="input-field"
-                  placeholder=""
+                  placeholder="Enter playlist name"
                   required
                 />
               </div>
-              
+
               <div>
                 <label htmlFor="playlistDescription" className="block text-sm font-semibold text-slate-700 mb-2">
                   Description
@@ -218,10 +218,10 @@ export function PlaylistsTab() {
                   onChange={(e) => setNewPlaylistDescription(e.target.value)}
                   className="input-field resize-none"
                   rows={3}
-                  placeholder=""
+                  placeholder="Enter playlist description (optional)"
                 />
               </div>
-              
+
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"

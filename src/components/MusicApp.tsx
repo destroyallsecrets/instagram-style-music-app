@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { StreamTab } from "./StreamTab";
-import { UploadTab } from "./UploadTab";
-import { PlaylistsTab } from "./PlaylistsTab";
-import { SearchTab } from "./SearchTab";
-import { AudioProvider } from "./AudioProvider";
+import {
+  StreamTab,
+  UploadTab,
+  PlaylistsTab,
+  SearchTab,
+  AudioProvider,
+  MusicWidget
+} from "./index";
 import { Play, Upload, Library, Search, Waves } from "lucide-react";
 
 type Tab = "stream" | "upload" | "playlists" | "search";
@@ -31,25 +34,25 @@ export function MusicApp() {
             className="space-y-4"
           >
             <div className="flex items-center justify-center space-x-2 mb-4">
-              <Waves className="w-8 h-8 text-blue-500" />
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
+              <Waves className="w-8 h-8 text-blue-400" />
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-100 via-blue-300 to-purple-300 bg-clip-text text-transparent">
                 Your Music Universe
               </h2>
             </div>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-300 max-w-2xl mx-auto">
               Discover, upload, organize, and search through your music collection
             </p>
           </motion.div>
         </div>
 
         {/* Enhanced Tab Navigation */}
-        <motion.nav 
+        <motion.nav
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
           className="flex justify-center mb-8"
         >
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-slate-200/60">
+          <div className="glass rounded-2xl p-2 shadow-lg">
             <div className="flex space-x-1">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
@@ -58,11 +61,10 @@ export function MusicApp() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`relative px-6 py-3 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                      activeTab === tab.id
+                    className={`relative px-6 py-3 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:ring-offset-2 focus:ring-offset-transparent ${activeTab === tab.id
                         ? "text-white shadow-lg"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                    }`}
+                        : "text-slate-300 hover:text-white hover:bg-slate-700/40"
+                      }`}
                   >
                     {activeTab === tab.id && (
                       <motion.div
@@ -83,7 +85,7 @@ export function MusicApp() {
         </motion.nav>
 
         {/* Tab Content */}
-        <motion.div 
+        <motion.div
           key={activeTab}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -94,6 +96,9 @@ export function MusicApp() {
           {activeTab === "playlists" && <PlaylistsTab />}
           {activeTab === "search" && <SearchTab />}
         </motion.div>
+
+        {/* Universal Music Widget */}
+        <MusicWidget />
       </div>
     </AudioProvider>
   );

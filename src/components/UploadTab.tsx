@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Upload, Music, Image, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, Music, Image, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export function UploadTab() {
@@ -11,7 +11,7 @@ export function UploadTab() {
   const [artist, setArtist] = useState("");
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverArt, setCoverArt] = useState<File | null>(null);
-  
+
   const audioInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
@@ -28,11 +28,11 @@ export function UploadTab() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     const audioFile = files.find(file => file.type.startsWith("audio/"));
     const imageFile = files.find(file => file.type.startsWith("image/"));
-    
+
     if (audioFile) {
       setAudioFile(audioFile);
       if (!title) {
@@ -61,9 +61,9 @@ export function UploadTab() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!audioFile || !title || !artist) {
       toast.error("Please fill in all required fields and select an audio file");
       return;
@@ -72,30 +72,34 @@ export function UploadTab() {
     setIsUploading(true);
     setUploadProgress(0);
 
-    try {
-      // Simulate upload process
-      for (let i = 0; i <= 100; i += 10) {
-        setUploadProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 200));
+    // Simulate upload process
+    const simulateUpload = async () => {
+      try {
+        for (let i = 0; i <= 100; i += 10) {
+          setUploadProgress(i);
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+
+        toast.success("Track uploaded successfully!");
+
+        // Reset form
+        setTitle("");
+        setArtist("");
+        setAudioFile(null);
+        setCoverArt(null);
+        if (audioInputRef.current) audioInputRef.current.value = "";
+        if (coverInputRef.current) coverInputRef.current.value = "";
+
+      } catch (error) {
+        console.error("Upload error:", error);
+        toast.error("Failed to upload track. Please try again.");
+      } finally {
+        setIsUploading(false);
+        setUploadProgress(0);
       }
-      
-      toast.success("Track uploaded successfully!");
-      
-      // Reset form
-      setTitle("");
-      setArtist("");
-      setAudioFile(null);
-      setCoverArt(null);
-      if (audioInputRef.current) audioInputRef.current.value = "";
-      if (coverInputRef.current) coverInputRef.current.value = "";
-      
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Failed to upload track. Please try again.");
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
-    }
+    };
+
+    void simulateUpload();
   };
 
   return (
@@ -110,8 +114,8 @@ export function UploadTab() {
           <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Upload className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">Upload Your Music</h2>
-          <p className="text-slate-600">Add new tracks to your collection</p>
+          <h2 className="text-3xl font-bold text-slate-100 mb-2">Upload Your Music</h2>
+          <p className="text-slate-300">Add new tracks to your collection</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -121,15 +125,14 @@ export function UploadTab() {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
-              isDragging
-                ? "border-blue-400 bg-blue-50/50 scale-105"
-                : "border-slate-300 hover:border-slate-400 hover:bg-slate-50/50"
-            }`}
+            className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${isDragging
+              ? "border-blue-400 bg-blue-500/10 scale-105"
+              : "border-slate-600/60 hover:border-slate-500/60 hover:bg-slate-700/20"
+              }`}
           >
             <div className="space-y-6">
               <motion.div
-                animate={{ 
+                animate={{
                   scale: isDragging ? [1, 1.1, 1] : 1,
                   rotate: isDragging ? [0, 5, -5, 0] : 0
                 }}
@@ -139,10 +142,10 @@ export function UploadTab() {
                 🎵
               </motion.div>
               <div>
-                <p className="text-xl font-semibold text-slate-900 mb-2">
+                <p className="text-xl font-semibold text-slate-100 mb-2">
                   Drop your music files here
                 </p>
-                <p className="text-slate-600">
+                <p className="text-slate-300">
                   or click to browse for files
                 </p>
               </div>
@@ -173,6 +176,7 @@ export function UploadTab() {
             accept="audio/*"
             onChange={handleAudioFileChange}
             className="hidden"
+            aria-label="Select audio file"
           />
           <input
             ref={coverInputRef}
@@ -180,6 +184,7 @@ export function UploadTab() {
             accept="image/*"
             onChange={handleCoverArtChange}
             className="hidden"
+            aria-label="Select cover art image"
           />
 
           {/* File Preview */}
@@ -187,32 +192,32 @@ export function UploadTab() {
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
-              className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-200/60"
+              className="glass rounded-2xl p-6"
             >
-              <h3 className="font-semibold text-slate-900 mb-4 flex items-center">
+              <h3 className="font-semibold text-slate-100 mb-4 flex items-center">
                 <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
                 Selected Files
               </h3>
               <div className="space-y-3">
                 {audioFile && (
-                  <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Music className="w-5 h-5 text-blue-600" />
+                  <div className="flex items-center gap-3 p-3 bg-slate-800/40 rounded-xl">
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <Music className="w-5 h-5 text-blue-400" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-slate-900">{audioFile.name}</p>
-                      <p className="text-sm text-slate-600">{(audioFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                      <p className="font-medium text-slate-100">{audioFile.name}</p>
+                      <p className="text-sm text-slate-300">{(audioFile.size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
                   </div>
                 )}
                 {coverArt && (
-                  <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Image className="w-5 h-5 text-purple-600" />
+                  <div className="flex items-center gap-3 p-3 bg-slate-800/40 rounded-xl">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                      <Image className="w-5 h-5 text-purple-400" />
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-slate-900">{coverArt.name}</p>
-                      <p className="text-sm text-slate-600">{(coverArt.size / 1024 / 1024).toFixed(2)} MB</p>
+                      <p className="font-medium text-slate-100">{coverArt.name}</p>
+                      <p className="text-sm text-slate-300">{(coverArt.size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
                   </div>
                 )}
@@ -223,7 +228,7 @@ export function UploadTab() {
           {/* Track Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="title" className="block text-sm font-semibold text-slate-700 mb-2">
+              <label htmlFor="title" className="block text-sm font-semibold text-slate-200 mb-2">
                 Track Title *
               </label>
               <input
@@ -232,12 +237,12 @@ export function UploadTab() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="input-field"
-                placeholder=""
+                placeholder="Enter track title"
                 required
               />
             </div>
             <div>
-              <label htmlFor="artist" className="block text-sm font-semibold text-slate-700 mb-2">
+              <label htmlFor="artist" className="block text-sm font-semibold text-slate-200 mb-2">
                 Artist Name *
               </label>
               <input
@@ -246,7 +251,7 @@ export function UploadTab() {
                 value={artist}
                 onChange={(e) => setArtist(e.target.value)}
                 className="input-field"
-                placeholder=""
+                placeholder="Enter artist name"
                 required
               />
             </div>
@@ -260,10 +265,10 @@ export function UploadTab() {
               className="space-y-3"
             >
               <div className="flex justify-between text-sm font-medium">
-                <span className="text-slate-700">Uploading...</span>
-                <span className="text-blue-600">{uploadProgress}%</span>
+                <span className="text-slate-200">Uploading...</span>
+                <span className="text-blue-400">{uploadProgress}%</span>
               </div>
-              <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-slate-700/60 rounded-full h-3 overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${uploadProgress}%` }}

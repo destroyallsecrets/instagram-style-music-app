@@ -2,7 +2,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { TrackCard } from "./TrackCard";
 import { motion } from "framer-motion";
-import { Music, Sparkles } from "lucide-react";
+import { Music } from "lucide-react";
 
 export function StreamTab() {
   const tracks = useQuery(api.tracks.getAllTracks);
@@ -15,7 +15,7 @@ export function StreamTab() {
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full mb-4"
         />
-        <p className="text-slate-600 font-medium">Loading tracks...</p>
+        <p className="text-slate-300 font-medium">Loading tracks...</p>
       </div>
     );
   }
@@ -28,7 +28,7 @@ export function StreamTab() {
         transition={{ duration: 0.5 }}
         className="text-center py-16"
       >
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-12 max-w-md mx-auto border border-slate-200/60">
+        <div className="glass rounded-3xl p-12 max-w-md mx-auto">
           <motion.div
             animate={{ 
               scale: [1, 1.1, 1],
@@ -43,8 +43,8 @@ export function StreamTab() {
           >
             🎵
           </motion.div>
-          <h3 className="text-2xl font-bold text-slate-900 mb-3">No tracks yet</h3>
-          <p className="text-slate-600 leading-relaxed">
+          <h3 className="text-2xl font-bold text-slate-100 mb-3">No tracks yet</h3>
+          <p className="text-slate-300 leading-relaxed">
             No tracks available yet
           </p>
 
@@ -66,8 +66,8 @@ export function StreamTab() {
             <Music className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">Music Stream</h2>
-            <p className="text-slate-600">{tracks.length} track{tracks.length !== 1 ? 's' : ''} available</p>
+            <h2 className="text-2xl font-bold text-slate-100">Music Stream</h2>
+            <p className="text-slate-300">{tracks.length} track{tracks.length !== 1 ? 's' : ''} available</p>
           </div>
         </div>
       </motion.div>

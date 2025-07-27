@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, TrendingUp, Clock, Music, User } from "lucide-react";
+import { Search, Filter, Music, User } from "lucide-react";
 import { TrackCard } from "./TrackCard";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -20,9 +20,6 @@ export function SearchTab() {
     { id: "tracks" as const, label: "Tracks", icon: Music },
     { id: "artists" as const, label: "Artists", icon: User },
   ];
-
-  const trendingSearches: string[] = [];
-  const recentSearches: string[] = [];
 
   useEffect(() => {
     if (!searchQuery.trim() || !allTracks) {
@@ -47,9 +44,7 @@ export function SearchTab() {
     return () => clearTimeout(searchTimeout);
   }, [searchQuery, allTracks]);
 
-  const handleTrendingClick = (term: string) => {
-    setSearchQuery(term);
-  };
+
 
   return (
     <div className="space-y-8">
@@ -62,8 +57,8 @@ export function SearchTab() {
         <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Search className="w-8 h-8 text-white" />
         </div>
-        <h2 className="text-3xl font-bold text-slate-900 mb-2">Search Music</h2>
-        <p className="text-slate-600">Find your next favorite track</p>
+        <h2 className="text-3xl font-bold text-slate-100 mb-2">Search Music</h2>
+        <p className="text-slate-300">Find your next favorite track</p>
       </motion.div>
 
       {/* Search Bar */}
@@ -79,8 +74,8 @@ export function SearchTab() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder=""
-            className="w-full pl-12 pr-12 py-4 bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 outline-none transition-all duration-300 shadow-sm hover:shadow-md text-lg"
+            placeholder="Search for tracks, artists..."
+            className="w-full pl-12 pr-12 py-4 glass rounded-2xl focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 outline-none transition-all duration-300 shadow-sm hover:shadow-md text-lg text-slate-200 placeholder:text-slate-400"
           />
           {isSearching && (
             <motion.div
@@ -99,7 +94,7 @@ export function SearchTab() {
         transition={{ delay: 0.2 }}
         className="flex justify-center"
       >
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-slate-200/60">
+        <div className="glass rounded-2xl p-2 shadow-lg">
           <div className="flex space-x-1">
             {filters.map((filter) => {
               const Icon = filter.icon;
@@ -108,10 +103,10 @@ export function SearchTab() {
                   key={filter.id}
                   type="button"
                   onClick={() => setActiveFilter(filter.id)}
-                  className={`relative px-4 py-2 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  className={`relative px-4 py-2 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400/50 focus:ring-offset-2 focus:ring-offset-transparent ${
                     activeFilter === filter.id
                       ? "text-white shadow-lg"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                      : "text-slate-300 hover:text-white hover:bg-slate-700/40"
                   }`}
                 >
                   {activeFilter === filter.id && (
@@ -141,10 +136,10 @@ export function SearchTab() {
           className="space-y-6"
         >
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-slate-900">
+            <h3 className="text-xl font-bold text-slate-100">
               Search Results {searchResults.length > 0 && `(${searchResults.length})`}
             </h3>
-            <button className="flex items-center space-x-2 text-slate-600 hover:text-slate-900 transition-colors">
+            <button type="button" className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors">
               <Filter className="w-4 h-4" />
               <span className="text-sm font-medium">Filter</span>
             </button>
@@ -178,8 +173,8 @@ export function SearchTab() {
               className="text-center py-12"
             >
               <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-2">No results found</h3>
-              <p className="text-slate-600">Try searching with different keywords</p>
+              <h3 className="text-xl font-semibold text-slate-100 mb-2">No results found</h3>
+              <p className="text-slate-300">Try searching with different keywords</p>
             </motion.div>
           )}
         </motion.div>
@@ -199,7 +194,7 @@ export function SearchTab() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-16"
           >
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-12 max-w-md mx-auto border border-slate-200/60">
+            <div className="glass rounded-3xl p-12 max-w-md mx-auto">
               <motion.div
                 animate={{ 
                   scale: [1, 1.1, 1],
@@ -214,8 +209,8 @@ export function SearchTab() {
               >
                 🔍
               </motion.div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">Start searching</h3>
-              <p className="text-slate-600 leading-relaxed">
+              <h3 className="text-2xl font-bold text-slate-100 mb-3">Start searching</h3>
+              <p className="text-slate-300 leading-relaxed">
                 Use the search bar above to find tracks, artists, and more
               </p>
             </div>

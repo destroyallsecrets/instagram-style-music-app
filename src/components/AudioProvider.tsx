@@ -1,12 +1,20 @@
 import { createContext, useContext, useState, useRef, ReactNode } from "react";
 
+interface TrackMetadata {
+  id: string;
+  title: string;
+  artist: string;
+  coverArtUrl?: string | null;
+}
+
 interface AudioContextType {
   currentTrack: string | null;
+  currentTrackMetadata: TrackMetadata | null;
   isPlaying: boolean;
   volume: number;
   currentTime: number;
   duration: number;
-  playTrack: (url: string, trackId: string) => void;
+  playTrack: (url: string, trackId: string, metadata?: TrackMetadata) => void;
   pauseTrack: () => void;
   setVolume: (volume: number) => void;
   seekTo: (time: number) => void;
@@ -28,13 +36,14 @@ interface AudioProviderProps {
 
 export function AudioProvider({ children }: AudioProviderProps) {
   const [currentTrack, setCurrentTrack] = useState<string | null>(null);
+  const [currentTrackMetadata, setCurrentTrackMetadata] = useState<TrackMetadata | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolumeState] = useState(0.7);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const playTrack = (url: string, trackId: string) => {
+  const playTrack = (url: string, trackId: string, metadata?: TrackMetadata) => {
     if (audioRef.current) {
       audioRef.current.pause();
     }
@@ -56,8 +65,9 @@ export function AudioProvider({ children }: AudioProviderProps) {
       setCurrentTime(0);
     });
 
-    audio.play();
+    void audio.play();
     setCurrentTrack(trackId);
+    setCurrentTrackMetadata(metadata || null);
     setIsPlaying(true);
   };
 
@@ -67,7 +77,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        audioRef.current.play();
+        void audioRef.current.play();
         setIsPlaying(true);
       }
     }
@@ -91,6 +101,7 @@ export function AudioProvider({ children }: AudioProviderProps) {
     <AudioContext.Provider
       value={{
         currentTrack,
+        currentTrackMetadata,
         isPlaying,
         volume,
         currentTime,

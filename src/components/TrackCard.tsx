@@ -32,7 +32,12 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
     if (isCurrentTrack) {
       pauseTrack();
     } else {
-      playTrack(track.audioUrl, track._id);
+      playTrack(track.audioUrl, track._id, {
+        id: track._id,
+        title: track.title,
+        artist: track.artist,
+        coverArtUrl: track.coverArtUrl
+      });
     }
   };
 
@@ -40,10 +45,10 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
     <motion.div
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
-      className={`group relative bg-white/80 backdrop-blur-sm rounded-2xl border transition-all duration-300 overflow-hidden ${
+      className={`group relative glass rounded-2xl transition-all duration-300 overflow-hidden ${
         isCurrentTrack 
-          ? "border-blue-200 shadow-lg shadow-blue-100/50 bg-gradient-to-r from-blue-50/50 to-purple-50/50" 
-          : "border-slate-200/60 shadow-sm hover:shadow-lg hover:shadow-slate-200/50 hover:border-slate-300/60"
+          ? "border-blue-400/60 shadow-lg shadow-blue-500/20 bg-gradient-to-r from-blue-500/20 to-purple-500/20" 
+          : "hover:shadow-lg hover:shadow-black/20 hover:border-slate-500/60"
       }`}
     >
       {/* Animated background for current track */}
@@ -51,7 +56,7 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5"
+          className="absolute inset-0 bg-gradient-to-r from-blue-500/15 to-purple-500/15"
         />
       )}
 
@@ -69,7 +74,7 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-br from-slate-700/60 to-slate-800/60 flex items-center justify-center">
                   <Music className="w-8 h-8 text-slate-400" />
                 </div>
               )}
@@ -94,18 +99,18 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
           {/* Enhanced Track Info */}
           <div className="flex-1 min-w-0 space-y-1">
             <h3 className={`font-semibold text-lg truncate transition-colors ${
-              isCurrentTrack ? "text-blue-900" : "text-slate-900 group-hover:text-slate-800"
+              isCurrentTrack ? "text-blue-200" : "text-slate-100 group-hover:text-white"
             }`}>
               {track.title}
             </h3>
             <p className={`text-base truncate transition-colors ${
-              isCurrentTrack ? "text-blue-700" : "text-slate-600"
+              isCurrentTrack ? "text-blue-300" : "text-slate-300"
             }`}>
               {track.artist}
             </p>
             
             {/* Metadata */}
-            <div className="flex items-center gap-4 text-sm text-slate-500">
+            <div className="flex items-center gap-4 text-sm text-slate-400">
               <div className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 <span>{formatDuration(track.duration)}</span>
@@ -132,10 +137,10 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
               whileTap={{ scale: 0.95 }}
               onClick={handlePlayPause}
               disabled={!track.audioUrl}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed ${
                 isCurrentTrack
-                  ? "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-200 focus:ring-blue-500"
-                  : "bg-slate-100 hover:bg-slate-200 text-slate-700 group-hover:bg-slate-200 focus:ring-slate-500"
+                  ? "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 focus:ring-blue-400/50"
+                  : "bg-slate-700/60 hover:bg-slate-600/60 text-slate-200 group-hover:bg-slate-600/60 focus:ring-slate-400/50"
               }`}
               aria-label={isCurrentTrack && isPlaying ? "Pause" : "Play"}
             >
