@@ -1,10 +1,12 @@
 import { Toaster } from "sonner";
 import { MusicApp } from "./components/MusicApp";
+import { AuthComponent, AutoLogin } from "./components";
 import { Music } from "lucide-react";
 
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
+      <AutoLogin />
       <header className="sticky top-0 z-50 glass border-b border-slate-600/40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -16,9 +18,7 @@ export default function App() {
                 SoundWave
               </h1>
             </div>
-            <div className="text-sm text-slate-300 font-medium">
-              Discover & Share Music
-            </div>
+            <AuthComponent />
           </div>
         </div>
       </header>

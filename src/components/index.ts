@@ -6,3 +6,5 @@ export { SearchTab } from './SearchTab';
 export { AudioProvider } from './AudioProvider';
 export { MusicWidget } from './MusicWidget';
 export { TrackCard } from './TrackCard';
+export { AuthComponent } from './AuthComponent';
+export { AutoLogin } from './AutoLogin';
