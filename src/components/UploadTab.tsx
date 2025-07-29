@@ -3,7 +3,8 @@ import { toast } from "sonner";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
-import { Upload, User } from "lucide-react";
+import { Upload, Shield, Lock } from "lucide-react";
+import { isAdminUser } from "../utils/auth";
 
 export function UploadTab() {
   const [title, setTitle] = useState("");
@@ -148,25 +149,46 @@ export function UploadTab() {
     );
   }
 
+  // Check if user is admin
+  const isAdmin = isAdminUser(user.email);
+  
+  // Show admin-only message if not admin
+  if (!isAdmin) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="glass rounded-2xl p-8 shadow-lg text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-4">Admin Access Required</h2>
+          <p className="text-slate-300 mb-6">
+            Upload functionality is restricted to administrators only.
+          </p>
+          <p className="text-sm text-slate-400">
+            Contact an administrator if you need access to upload music.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="glass rounded-2xl p-8 shadow-lg">
         <div className="flex items-center space-x-3 mb-6">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <Upload className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+            <Shield className="w-5 h-5 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-white">Upload Your Track</h2>
+          <h2 className="text-2xl font-bold text-white">Admin Upload Panel</h2>
         </div>
 
-        <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-          <p className="text-sm text-blue-300">
-            <span className="font-medium">Signed in as:</span> {user.name || user.email || "Guest User"}
+        <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+          <p className="text-sm text-green-300">
+            <span className="font-medium">Admin Access:</span> {user.email}
           </p>
-          {(!user.name && !user.email) && (
-            <p className="text-xs text-blue-400 mt-1">
-              You can sign up in the header to save your uploads to your account
-            </p>
-          )}
+          <p className="text-xs text-green-400 mt-1">
+            You have administrator privileges to upload music
+          </p>
         </div>
 
         <form onSubmit={(e) => { void handleSubmit(e); }} className="space-y-6">

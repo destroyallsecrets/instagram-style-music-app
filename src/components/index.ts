@@ -8,3 +8,4 @@ export { MusicWidget } from './MusicWidget';
 export { TrackCard } from './TrackCard';
 export { AuthComponent } from './AuthComponent';
 export { AutoLogin } from './AutoLogin';
+export { AdminLogin } from './AdminLogin';

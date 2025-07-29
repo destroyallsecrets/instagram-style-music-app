@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import {
   StreamTab,
   UploadTab,
@@ -9,18 +11,27 @@ import {
   MusicWidget
 } from "./index";
 import { Play, Upload, Library, Search, Waves } from "lucide-react";
+import { isAdminUser } from "../utils/auth";
 
 type Tab = "stream" | "upload" | "playlists" | "search";
 
 export function MusicApp() {
   const [activeTab, setActiveTab] = useState<Tab>("stream");
+  const user = useQuery(api.auth.loggedInUser);
+  const isAdmin = isAdminUser(user?.email);
 
-  const tabs = [
+  // Only show upload tab for admin users
+  const baseTabs = [
     { id: "stream" as const, label: "Discover", icon: Play, description: "Explore music" },
-    { id: "upload" as const, label: "Upload", icon: Upload, description: "Share your music" },
     { id: "playlists" as const, label: "Playlists", icon: Library, description: "Your collections" },
     { id: "search" as const, label: "Search", icon: Search, description: "Find tracks" },
   ];
+
+  const adminTabs = [
+    { id: "upload" as const, label: "Upload", icon: Upload, description: "Share your music" },
+  ];
+
+  const tabs = isAdmin ? [...baseTabs.slice(0, 1), ...adminTabs, ...baseTabs.slice(1)] : baseTabs;
 
   return (
     <AudioProvider>

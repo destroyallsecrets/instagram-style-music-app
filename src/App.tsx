@@ -1,9 +1,34 @@
 import { Toaster } from "sonner";
 import { MusicApp } from "./components/MusicApp";
 import { AuthComponent, AutoLogin } from "./components";
+import { AdminLogin } from "./components/AdminLogin";
 import { Music } from "lucide-react";
 
 export default function App() {
+  // Check if we're on the admin route
+  const isAdminRoute = window.location.pathname === '/admin';
+
+  // If on admin route, show admin login page
+  if (isAdminRoute) {
+    return (
+      <>
+        <AdminLogin />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: 'rgba(30, 41, 59, 0.9)',
+              border: '1px solid rgba(148, 163, 184, 0.2)',
+              color: '#e2e8f0',
+              backdropFilter: 'blur(20px)',
+            },
+          }}
+        />
+      </>
+    );
+  }
+
+  // Normal app layout
   return (
     <div className="min-h-screen flex flex-col">
       <AutoLogin />

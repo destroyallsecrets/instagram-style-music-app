@@ -3,7 +3,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
-import { User, LogOut, LogIn } from "lucide-react";
+import { User, LogIn } from "lucide-react";
 
 export function AuthComponent() {
   const { signIn, signOut } = useAuthActions();
@@ -22,8 +22,8 @@ export function AuthComponent() {
 
     setIsSigningIn(true);
     try {
-      await signIn("password", { 
-        email: email.trim(), 
+      await signIn("password", {
+        email: email.trim(),
         password,
         flow: isSignUp ? "signUp" : "signIn"
       });
@@ -38,15 +38,7 @@ export function AuthComponent() {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      toast.success("Signed out successfully");
-    } catch (error) {
-      console.error("Sign out error:", error);
-      toast.error("Failed to sign out");
-    }
-  };
+
 
   const handleAnonymousSignIn = async () => {
     setIsSigningIn(true);
@@ -61,29 +53,24 @@ export function AuthComponent() {
     }
   };
 
+  // Only show user info if they're signed in, but hide all auth controls
   if (user) {
     return (
       <div className="flex items-center space-x-3">
         <div className="flex items-center space-x-2 text-slate-300">
           <User className="w-4 h-4" />
           <span className="text-sm">
-            {user.name || user.email || "Anonymous User"}
+            {user.name || user.email || "Guest User"}
           </span>
         </div>
-        <button
-          onClick={handleSignOut}
-          className="flex items-center space-x-1 px-3 py-1.5 text-sm text-slate-300 hover:text-white hover:bg-slate-700/40 rounded-lg transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Sign Out</span>
-        </button>
       </div>
     );
   }
 
+  // Hidden auth form - still functional but not visible
   return (
-    <div className="flex items-center space-x-3">
-      <form onSubmit={handleAuth} className="flex items-center space-x-2">
+    <div className="hidden">
+      <form onSubmit={(e) => { void handleAuth(e); }} className="flex items-center space-x-2">
         <input
           type="email"
           placeholder="Email"
@@ -109,16 +96,18 @@ export function AuthComponent() {
           <span>{isSigningIn ? "..." : (isSignUp ? "Sign Up" : "Sign In")}</span>
         </button>
       </form>
-      
+
       <button
+        type="button"
         onClick={() => setIsSignUp(!isSignUp)}
         className="text-sm text-slate-400 hover:text-slate-300 transition-colors"
       >
         {isSignUp ? "Sign In" : "Sign Up"}
       </button>
-      
+
       <button
-        onClick={handleAnonymousSignIn}
+        type="button"
+        onClick={() => { void handleAnonymousSignIn(); }}
         disabled={isSigningIn}
         className="text-sm text-slate-400 hover:text-slate-300 transition-colors disabled:opacity-50"
       >
