@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Play, Upload, Library, Search } from "lucide-react";
+import { Play, Upload, Library, Search, Users } from "lucide-react";
 
-type Tab = "stream" | "upload" | "playlists" | "search";
+type Tab = "stream" | "upload" | "playlists" | "search" | "artists";
 
 interface TabConfig {
   id: Tab;
@@ -20,6 +20,7 @@ const iconMap = {
   upload: Upload,
   playlists: Library,
   search: Search,
+  artists: Users,
 };
 
 export function MobileBottomNav({ activeTab, onTabChange, tabs }: MobileBottomNavProps) {
