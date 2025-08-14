@@ -1,34 +1,5 @@
-import { createContext, useContext, useState, useRef, ReactNode } from "react";
-
-interface TrackMetadata {
-  id: string;
-  title: string;
-  artist: string;
-  coverArtUrl?: string | null;
-}
-
-interface AudioContextType {
-  currentTrack: string | null;
-  currentTrackMetadata: TrackMetadata | null;
-  isPlaying: boolean;
-  volume: number;
-  currentTime: number;
-  duration: number;
-  playTrack: (url: string, trackId: string, metadata?: TrackMetadata) => void;
-  pauseTrack: () => void;
-  setVolume: (volume: number) => void;
-  seekTo: (time: number) => void;
-}
-
-const AudioContext = createContext<AudioContextType | null>(null);
-
-export function useAudio() {
-  const context = useContext(AudioContext);
-  if (!context) {
-    throw new Error("useAudio must be used within AudioProvider");
-  }
-  return context;
-}
+import { useState, useRef, ReactNode } from "react";
+import { AudioContext, type TrackMetadata } from "../contexts/AudioContext";
 
 interface AudioProviderProps {
   children: ReactNode;

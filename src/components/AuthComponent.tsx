@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { User, LogIn } from "lucide-react";
 
 export function AuthComponent() {
-  const { signIn, signOut } = useAuthActions();
+  const { signIn } = useAuthActions();
   const user = useQuery(api.auth.loggedInUser);
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [email, setEmail] = useState("");

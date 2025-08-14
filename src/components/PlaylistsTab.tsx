@@ -1,19 +1,12 @@
-import { useState } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { motion } from "framer-motion";
-import { Library, Plus, Play, Music, Heart, Clock, MoreHorizontal } from "lucide-react";
-
-interface Playlist {
-  id: string;
-  name: string;
-  description: string;
-  trackCount: number;
-  duration: string;
-  coverUrl?: string;
-  isLiked?: boolean;
-}
+import { Library, Plus, Play, Music, Clock, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
 
 export function PlaylistsTab() {
-  const [playlists] = useState<Playlist[]>([]);
+  const playlists = useQuery(api.tracks.getPlaylists);
+  const createPlaylist = useMutation(api.tracks.createPlaylist);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
@@ -23,12 +16,15 @@ export function PlaylistsTab() {
     e.preventDefault();
     if (!newPlaylistName.trim()) return;
 
-    // Here you would typically create the playlist
-    console.log("Creating playlist:", { name: newPlaylistName, description: newPlaylistDescription });
-
-    setNewPlaylistName("");
-    setNewPlaylistDescription("");
-    setShowCreateModal(false);
+    void createPlaylist({
+      name: newPlaylistName,
+      description: newPlaylistDescription,
+      isPublic: false,
+    }).then(() => {
+      setNewPlaylistName("");
+      setNewPlaylistDescription("");
+      setShowCreateModal(false);
+    });
   };
 
   return (
@@ -61,7 +57,7 @@ export function PlaylistsTab() {
       </motion.div>
 
       {/* Empty State */}
-      {playlists.length === 0 ? (
+      {playlists && playlists.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -105,9 +101,9 @@ export function PlaylistsTab() {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {playlists.map((playlist, index) => (
+          {playlists?.map((playlist, index) => (
             <motion.div
-              key={playlist.id}
+              key={playlist._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -116,15 +112,7 @@ export function PlaylistsTab() {
             >
               {/* Cover Art */}
               <div className="relative h-48 bg-gradient-to-br from-slate-700/60 to-slate-800/60 flex items-center justify-center">
-                {playlist.coverUrl ? (
-                  <img
-                    src={playlist.coverUrl}
-                    alt={playlist.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <Music className="w-16 h-16 text-slate-400" />
-                )}
+                <Music className="w-16 h-16 text-slate-400" />
 
                 {/* Play Button Overlay */}
                 <motion.button
@@ -136,15 +124,6 @@ export function PlaylistsTab() {
                     <Play className="w-6 h-6 text-slate-800 ml-1" />
                   </div>
                 </motion.button>
-
-                {/* Like Button */}
-                {playlist.isLiked && (
-                  <div className="absolute top-3 right-3">
-                    <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
-                      <Heart className="w-4 h-4 text-white fill-current" />
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Content */}
@@ -162,11 +141,11 @@ export function PlaylistsTab() {
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-1">
                       <Music className="w-3 h-3" />
-                      <span>{playlist.trackCount} tracks</span>
+                      <span>0 tracks</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Clock className="w-3 h-3" />
-                      <span>{playlist.duration}</span>
+                      <span>0m 0s</span>
                     </div>
                   </div>
                 </div>

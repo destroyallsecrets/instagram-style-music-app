@@ -52,6 +52,7 @@ export default {
         'section': '2rem',
         '18': '4.5rem',
         '88': '22rem',
+        'safe': 'env(safe-area-inset-bottom)',
       },
       borderRadius: {
         'container': '0.75rem',
@@ -108,6 +109,8 @@ export default {
         'glow': '0 0 20px rgba(59, 130, 246, 0.3)',
         'glow-lg': '0 0 40px rgba(59, 130, 246, 0.4)',
         'inner-glow': 'inset 0 2px 4px 0 rgba(59, 130, 246, 0.1)',
+        'mobile': '0 4px 20px rgba(0, 0, 0, 0.15)',
+        'mobile-lg': '0 8px 30px rgba(0, 0, 0, 0.2)',
       },
     },
   },

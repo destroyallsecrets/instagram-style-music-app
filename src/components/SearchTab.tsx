@@ -10,11 +10,10 @@ type SearchFilter = "all" | "tracks" | "artists" | "albums";
 export function SearchTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<SearchFilter>("all");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  
-  const allTracks = useQuery(api.tracks.getAllTracks);
-  
+
+  const searchResults = useQuery(api.tracks.searchTracks, { query: searchQuery });
+
   const filters = [
     { id: "all" as const, label: "All", icon: Search },
     { id: "tracks" as const, label: "Tracks", icon: Music },
@@ -22,29 +21,13 @@ export function SearchTab() {
   ];
 
   useEffect(() => {
-    if (!searchQuery.trim() || !allTracks) {
-      setSearchResults([]);
-      return;
-    }
-
     setIsSearching(true);
-    
-    // Simulate search delay
     const searchTimeout = setTimeout(() => {
-      const filtered = allTracks.filter(track => 
-        track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        track.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (track.uploaderName && track.uploaderName.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-      
-      setSearchResults(filtered);
       setIsSearching(false);
-    }, 300);
+    }, 500);
 
     return () => clearTimeout(searchTimeout);
-  }, [searchQuery, allTracks]);
-
-
+  }, [searchQuery]);
 
   return (
     <div className="space-y-8">
@@ -137,7 +120,7 @@ export function SearchTab() {
         >
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-slate-100">
-              Search Results {searchResults.length > 0 && `(${searchResults.length})`}
+              Search Results {searchResults && searchResults.length > 0 && `(${searchResults.length})`}
             </h3>
             <button type="button" className="flex items-center space-x-2 text-slate-300 hover:text-white transition-colors">
               <Filter className="w-4 h-4" />
@@ -153,7 +136,7 @@ export function SearchTab() {
                 className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full"
               />
             </div>
-          ) : searchResults.length > 0 ? (
+          ) : searchResults && searchResults.length > 0 ? (
             <div className="space-y-4">
               {searchResults.map((track, index) => (
                 <motion.div
@@ -196,11 +179,11 @@ export function SearchTab() {
           >
             <div className="glass rounded-3xl p-12 max-w-md mx-auto">
               <motion.div
-                animate={{ 
+                animate={{
                   scale: [1, 1.1, 1],
                   rotate: [0, 5, -5, 0]
                 }}
-                transition={{ 
+                transition={{
                   duration: 3,
                   repeat: Infinity,
                   ease: "easeInOut"

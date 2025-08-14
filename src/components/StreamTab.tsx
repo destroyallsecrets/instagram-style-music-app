@@ -54,20 +54,20 @@ export function StreamTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
+        className="flex items-center justify-between px-1"
       >
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-            <Music className="w-5 h-5 text-white" />
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+            <Music className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-slate-100">Music Stream</h2>
-            <p className="text-slate-300">{tracks.length} track{tracks.length !== 1 ? 's' : ''} available</p>
+            <h2 className="text-lg sm:text-2xl font-bold text-slate-100">Music Stream</h2>
+            <p className="text-xs sm:text-sm text-slate-300">{tracks.length} track{tracks.length !== 1 ? 's' : ''} available</p>
           </div>
         </div>
       </motion.div>
@@ -77,7 +77,7 @@ export function StreamTab() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="grid gap-4 sm:gap-6"
+        className="grid gap-3 sm:gap-4"
       >
         {tracks.map((track, index) => (
           <motion.div

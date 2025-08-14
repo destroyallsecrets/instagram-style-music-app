@@ -13,7 +13,11 @@ const applicationTables = {
     uploadedAt: v.number(),
   })
     .index("by_uploaded_at", ["uploadedAt"])
-    .index("by_user", ["uploadedBy"]),
+    .index("by_user", ["uploadedBy"])
+    .searchIndex("by_search", {
+      searchField: "title",
+      filterFields: ["artist"],
+    }),
 
   feedback: defineTable({
     trackId: v.id("tracks"),
@@ -57,6 +61,25 @@ const applicationTables = {
     .index("by_score", ["score"])
     .index("by_timeframe_score", ["timeframe", "score"])
     .index("by_calculated", ["lastCalculated"]),
+    
+    playlists: defineTable({
+    name: v.string(),
+    description: v.optional(v.string()),
+    ownerId: v.id("users"),
+    isPublic: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_owner", ["ownerId"])
+    .index("by_public", ["isPublic"]),
+
+  playlistTracks: defineTable({
+    playlistId: v.id("playlists"),
+    trackId: v.id("tracks"),
+    addedAt: v.number(),
+  })
+    .index("by_playlist", ["playlistId"])
+    .index("by_track", ["trackId"])
+    .index("by_playlist_track", ["playlistId", "trackId"]),
 };
 
 export default defineSchema({

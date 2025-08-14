@@ -30,6 +30,7 @@ export function AdminLogin() {
 
     setIsSigningIn(true);
     try {
+      // First try to sign in
       await signIn("password", { 
         email: email.trim(), 
         password,
@@ -38,9 +39,23 @@ export function AdminLogin() {
       toast.success("Admin signed in successfully!");
       setEmail("");
       setPassword("");
-    } catch (error) {
-      console.error("Admin auth error:", error);
-      toast.error("Failed to sign in as admin");
+    } catch (signInError) {
+      console.log("Sign in failed, trying sign up...", signInError);
+      
+      // If sign in fails, try to create the admin account
+      try {
+        await signIn("password", { 
+          email: email.trim(), 
+          password,
+          flow: "signUp"
+        });
+        toast.success("Admin account created and signed in successfully!");
+        setEmail("");
+        setPassword("");
+      } catch (signUpError) {
+        console.error("Admin auth error:", signUpError);
+        toast.error("Failed to sign in as admin. Please check your password or try again.");
+      }
     } finally {
       setIsSigningIn(false);
     }
@@ -104,7 +119,10 @@ export function AdminLogin() {
               <Shield className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Admin Access</h2>
-            <p className="text-slate-400">Authorized personnel only</p>
+            <p className="text-slate-400 mb-2">Authorized personnel only</p>
+            <p className="text-xs text-slate-500">
+              First time? Your admin account will be created automatically.
+            </p>
           </div>
 
           <form onSubmit={(e) => { void handleAdminAuth(e); }} className="space-y-6">

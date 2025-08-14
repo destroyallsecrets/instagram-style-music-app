@@ -1,8 +1,8 @@
-import { useAudio } from "./AudioProvider";
+import { useAudio } from "../hooks/useAudio";
 import { formatDuration } from "../lib/utils";
 import { Id } from "../../convex/_generated/dataModel";
 import { motion } from "framer-motion";
-import { Play, Pause, Music, Calendar, User, Clock } from "lucide-react";
+import { Play, Pause, Music, User, Clock } from "lucide-react";
 
 interface Track {
   _id: Id<"tracks">;
@@ -44,8 +44,9 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
   return (
     <motion.div
       whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.2 }}
-      className={`group relative glass rounded-2xl transition-all duration-300 overflow-hidden ${
+      className={`group relative glass rounded-lg sm:rounded-xl transition-all duration-300 overflow-hidden ${
         isCurrentTrack 
           ? "border-blue-400/60 shadow-lg shadow-blue-500/20 bg-gradient-to-r from-blue-500/20 to-purple-500/20" 
           : "hover:shadow-lg hover:shadow-black/20 hover:border-slate-500/60"
@@ -60,11 +61,11 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
         />
       )}
 
-      <div className="relative p-6">
-        <div className="flex items-center gap-4">
+      <div className="relative p-3 sm:p-4">
+        <div className="flex items-center gap-3">
           {/* Enhanced Cover Art */}
           <div className="relative flex-shrink-0">
-            <div className={`w-20 h-20 rounded-xl overflow-hidden transition-all duration-300 ${
+            <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden transition-all duration-300 ${
               isCurrentTrack ? "ring-2 ring-blue-400/50 shadow-lg" : "group-hover:shadow-md"
             }`}>
               {track.coverArtUrl ? (
@@ -75,7 +76,7 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-slate-700/60 to-slate-800/60 flex items-center justify-center">
-                  <Music className="w-8 h-8 text-slate-400" />
+                  <Music className="w-5 h-5 sm:w-6 sm:h-6 text-slate-400" />
                 </div>
               )}
             </div>
@@ -85,59 +86,53 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg"
+                className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shadow-lg"
               >
                 <motion.div
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 1, repeat: Infinity }}
-                  className="w-2 h-2 bg-white rounded-full"
+                  className="w-1.5 h-1.5 bg-white rounded-full"
                 />
               </motion.div>
             )}
           </div>
 
           {/* Enhanced Track Info */}
-          <div className="flex-1 min-w-0 space-y-1">
-            <h3 className={`font-semibold text-lg truncate transition-colors ${
+          <div className="flex-1 min-w-0 space-y-0.5 sm:space-y-1">
+            <h3 className={`font-semibold text-sm sm:text-base truncate transition-colors ${
               isCurrentTrack ? "text-blue-200" : "text-slate-100 group-hover:text-white"
             }`}>
               {track.title}
             </h3>
-            <p className={`text-base truncate transition-colors ${
+            <p className={`text-xs sm:text-sm truncate transition-colors ${
               isCurrentTrack ? "text-blue-300" : "text-slate-300"
             }`}>
               {track.artist}
             </p>
             
             {/* Metadata */}
-            <div className="flex items-center gap-4 text-sm text-slate-400">
+            <div className="flex items-center gap-2 text-xs text-slate-400">
               <div className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 <span>{formatDuration(track.duration)}</span>
               </div>
               {showUploader && (
-                <>
-                  <div className="flex items-center gap-1">
-                    <User className="w-3 h-3" />
-                    <span className="truncate max-w-24">{track.uploaderName}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    <span>{new Date(track.uploadedAt).toLocaleDateString()}</span>
-                  </div>
-                </>
+                <div className="hidden sm:flex items-center gap-1">
+                  <User className="w-3 h-3" />
+                  <span className="truncate max-w-20">{track.uploaderName}</span>
+                </div>
               )}
             </div>
           </div>
 
           {/* Enhanced Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handlePlayPause}
               disabled={!track.audioUrl}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed ${
                 isCurrentTrack
                   ? "bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 focus:ring-blue-400/50"
                   : "bg-slate-700/60 hover:bg-slate-600/60 text-slate-200 group-hover:bg-slate-600/60 focus:ring-slate-400/50"
@@ -145,9 +140,9 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
               aria-label={isCurrentTrack && isPlaying ? "Pause" : "Play"}
             >
               {isCurrentTrack && isPlaying ? (
-                <Pause className="w-5 h-5" />
+                <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
               ) : (
-                <Play className="w-5 h-5 ml-0.5" />
+                <Play className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" />
               )}
             </motion.button>
 

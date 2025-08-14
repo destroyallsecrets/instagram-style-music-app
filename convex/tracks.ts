@@ -44,7 +44,7 @@ export const createTrack = mutation({
       if (!audioUrl) {
         throw new Error("Audio file not found");
       }
-    } catch (error) {
+    } catch {
       throw new Error("Invalid audio file");
     }
 
@@ -55,7 +55,7 @@ export const createTrack = mutation({
         if (!coverUrl) {
           throw new Error("Cover art file not found");
         }
-      } catch (error) {
+      } catch {
         throw new Error("Invalid cover art file");
       }
     }
@@ -109,6 +109,55 @@ export const getAllTracks = query({
         } catch (error) {
           console.error("Error processing track:", track._id, error);
           // Return track with null URLs if storage access fails
+          return {
+            ...track,
+            audioUrl: null,
+            coverArtUrl: null,
+            uploaderName: "Unknown User",
+          };
+        }
+      })
+    );
+  },
+});
+
+export const searchTracks = query({
+  args: { query: v.string() },
+  handler: async (ctx, args) => {
+    if (!args.query) {
+      return [];
+    }
+    const tracks = await ctx.db
+      .query("tracks")
+      .withSearchIndex("by_search", (q) => q.search("title", args.query))
+      .collect();
+
+    return Promise.all(
+      tracks.map(async (track) => {
+        try {
+          const audioUrl = await ctx.storage.getUrl(track.audioFileId);
+          const coverArtUrl = track.coverArtId
+            ? await ctx.storage.getUrl(track.coverArtId)
+            : null;
+
+          let uploaderName = "Anonymous User";
+          if (track.uploadedBy) {
+            try {
+              const user = await ctx.db.get(track.uploadedBy);
+              uploaderName = user?.name || user?.email || "Anonymous User";
+            } catch (error) {
+              console.warn("Could not fetch user info:", error);
+            }
+          }
+
+          return {
+            ...track,
+            audioUrl,
+            coverArtUrl,
+            uploaderName,
+          };
+        } catch (error) {
+          console.error("Error processing track:", track._id, error);
           return {
             ...track,
             audioUrl: null,
@@ -233,5 +282,43 @@ export const getTrack = query({
         uploaderName: "Unknown User",
       };
     }
+  },
+});
+
+export const createPlaylist = mutation({
+  args: {
+    name: v.string(),
+    description: v.optional(v.string()),
+    isPublic: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    return await ctx.db.insert("playlists", {
+      name: args.name,
+      description: args.description,
+      isPublic: args.isPublic,
+      ownerId: userId,
+      createdAt: Date.now(),
+    });
+  },
+});
+
+export const getPlaylists = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return [];
+    }
+
+    return await ctx.db
+      .query("playlists")
+      .withIndex("by_owner", (q) => q.eq("ownerId", userId))
+      .order("desc")
+      .collect();
   },
 });

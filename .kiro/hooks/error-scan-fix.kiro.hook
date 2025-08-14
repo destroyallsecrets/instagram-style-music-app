@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "name": "Auto Error Scanner & Fixer",
+  "description": "Automatically scans the entire codebase for errors and fixes them whenever any file is modified and saved",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.tsx",
+      "src/**/*.ts",
+      "convex/**/*.ts",
+      "*.ts",
+      "*.tsx",
+      "*.js",
+      "*.jsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A file has been modified. Please scan the entire codebase for any errors including TypeScript errors, ESLint violations, syntax errors, import issues, type mismatches, and logical errors. For each error found, provide a specific fix with the exact code changes needed. Focus on: 1) TypeScript compilation errors 2) Missing imports or incorrect import paths 3) Type safety issues 4) ESLint rule violations 5) Syntax errors 6) Unused variables or dead code 7) Logic errors or potential bugs. Provide clear, actionable fixes for each issue discovered."
+  }
+}
