@@ -1,24 +1,52 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Music, User } from "lucide-react";
+import { Search, Filter, Music, User, X } from "lucide-react";
 import { TrackCard } from "./TrackCard";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
-type SearchFilter = "all" | "tracks" | "artists" | "albums";
+type SearchFilter = "all" | "tracks" | "artists";
 
 export function SearchTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<SearchFilter>("all");
+  const [selectedGenre, setSelectedGenre] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
 
   const searchResults = useQuery(api.tracks.searchTracks, { query: searchQuery });
+  const artists = useQuery(api.artists.getAllArtistProfiles);
+  const allTracks = useQuery(api.tracks.getAllTracks);
+  
+  // Get unique genres from tracks
+  const genres = allTracks ? [...new Set(allTracks.map(track => track.genre).filter(Boolean))] : [];
 
   const filters = [
     { id: "all" as const, label: "All", icon: Search },
     { id: "tracks" as const, label: "Tracks", icon: Music },
     { id: "artists" as const, label: "Artists", icon: User },
   ];
+
+  // Filter results based on selected filters
+  const filteredTracks = searchResults?.filter(track => 
+    !selectedGenre || track.genre === selectedGenre
+  ) || [];
+
+  const filteredArtists = artists?.filter(artist =>
+    artist.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (artist.genre && artist.genre.toLowerCase().includes(searchQuery.toLowerCase()))
+  ).filter(artist =>
+    !selectedGenre || artist.genre === selectedGenre
+  ) || [];
+
+  const handleArtistClick = (artist: any) => {
+    const artistSlug = artist.displayName.toLowerCase().replace(/\s+/g, '-');
+    window.location.href = `/artist/${artistSlug}`;
+  };
+
+  const clearFilters = () => {
+    setSelectedGenre("");
+  };
 
   useEffect(() => {
     setIsSearching(true);
@@ -110,6 +138,67 @@ export function SearchTab() {
         </div>
       </motion.div>
 
+      {/* Advanced Filters */}
+      {searchQuery && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="flex justify-center"
+        >
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className={`glass px-4 py-2 rounded-xl transition-colors flex items-center gap-2 ${
+              showFilters ? 'bg-blue-500/20 text-blue-400' : 'hover:bg-slate-600/40 text-slate-300'
+            }`}
+          >
+            <Filter className="w-4 h-4" />
+            <span className="text-sm">Filters</span>
+          </button>
+        </motion.div>
+      )}
+
+      {/* Filters Panel */}
+      {showFilters && searchQuery && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="glass rounded-xl p-4 max-w-md mx-auto"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-slate-100">Filters</h3>
+            {selectedGenre && (
+              <button
+                onClick={clearFilters}
+                className="text-sm text-slate-400 hover:text-slate-200 flex items-center gap-1"
+              >
+                <X className="w-3 h-3" />
+                Clear
+              </button>
+            )}
+          </div>
+          
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Genre</label>
+              <select
+                value={selectedGenre}
+                onChange={(e) => setSelectedGenre(e.target.value)}
+                className="w-full bg-slate-800/60 border border-slate-600/40 rounded-lg px-3 py-2 text-white"
+                aria-label="Filter by genre"
+              >
+                <option value="">All Genres</option>
+                {genres.map((genre) => (
+                  <option key={genre} value={genre}>{genre}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Search Results */}
       {searchQuery && (
         <motion.div
@@ -136,29 +225,148 @@ export function SearchTab() {
                 className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full"
               />
             </div>
-          ) : searchResults && searchResults.length > 0 ? (
-            <div className="space-y-4">
-              {searchResults.map((track, index) => (
-                <motion.div
-                  key={track._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <TrackCard track={track} showUploader />
-                </motion.div>
-              ))}
-            </div>
+          ) : activeFilter === "tracks" || activeFilter === "all" ? (
+            filteredTracks.length > 0 ? (
+              <div className="space-y-4">
+                {filteredTracks.map((track, index) => (
+                  <motion.div
+                    key={track._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <TrackCard track={track} showUploader />
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-12"
+              >
+                <div className="text-6xl mb-4">🎵</div>
+                <h3 className="text-xl font-semibold text-slate-100 mb-2">No tracks found</h3>
+                <p className="text-slate-300">
+                  Try searching with different keywords
+                  {selectedGenre && " or change the genre filter"}
+                </p>
+              </motion.div>
+            )
+          ) : activeFilter === "artists" ? (
+            filteredArtists.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredArtists.map((artist, index) => (
+                  <motion.div
+                    key={artist._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="glass rounded-xl p-4 cursor-pointer hover:bg-slate-700/40 transition-colors"
+                    onClick={() => handleArtistClick(artist)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-slate-700/60 to-slate-800/60 flex items-center justify-center">
+                        <User className="w-6 h-6 text-slate-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-slate-100 truncate">
+                          {artist.displayName}
+                        </h3>
+                        {artist.genre && (
+                          <p className="text-sm text-slate-300 truncate">
+                            {artist.genre}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-12"
+              >
+                <div className="text-6xl mb-4">👤</div>
+                <h3 className="text-xl font-semibold text-slate-100 mb-2">No artists found</h3>
+                <p className="text-slate-300">
+                  Try searching with different keywords
+                  {selectedGenre && " or change the genre filter"}
+                </p>
+              </motion.div>
+            )
           ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-12"
-            >
-              <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-xl font-semibold text-slate-100 mb-2">No results found</h3>
-              <p className="text-slate-300">Try searching with different keywords</p>
-            </motion.div>
+            // Show both tracks and artists for "all" filter
+            <div className="space-y-8">
+              {filteredTracks.length > 0 && (
+                <div>
+                  <h4 className="text-lg font-semibold text-slate-100 mb-4">Tracks</h4>
+                  <div className="space-y-4">
+                    {filteredTracks.slice(0, 5).map((track, index) => (
+                      <motion.div
+                        key={track._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <TrackCard track={track} showUploader />
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {filteredArtists.length > 0 && (
+                <div>
+                  <h4 className="text-lg font-semibold text-slate-100 mb-4">Artists</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredArtists.slice(0, 6).map((artist, index) => (
+                      <motion.div
+                        key={artist._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="glass rounded-xl p-4 cursor-pointer hover:bg-slate-700/40 transition-colors"
+                        onClick={() => handleArtistClick(artist)}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-slate-700/60 to-slate-800/60 flex items-center justify-center">
+                            <User className="w-6 h-6 text-slate-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-slate-100 truncate">
+                              {artist.displayName}
+                            </h3>
+                            {artist.genre && (
+                              <p className="text-sm text-slate-300 truncate">
+                                {artist.genre}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {filteredTracks.length === 0 && filteredArtists.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-12"
+                >
+                  <div className="text-6xl mb-4">🔍</div>
+                  <h3 className="text-xl font-semibold text-slate-100 mb-2">No results found</h3>
+                  <p className="text-slate-300">
+                    Try searching with different keywords
+                    {selectedGenre && " or change the genre filter"}
+                  </p>
+                </motion.div>
+              )}
+            </div>
           )}
         </motion.div>
       )}

@@ -7,12 +7,13 @@ import { MobileStreamTab } from "./MobileStreamTab";
 import { MobileUploadTab } from "./MobileUploadTab";
 import { MobilePlaylistsTab } from "./MobilePlaylistsTab";
 import { MobileSearchTab } from "./MobileSearchTab";
+import { MobileArtistsTab } from "./MobileArtistsTab";
 import { MobileMusicWidget } from "./MobileMusicWidget";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { MobileHeader } from "./MobileHeader";
 import { isAdminUser } from "../../utils/auth";
 
-type Tab = "stream" | "upload" | "playlists" | "search";
+type Tab = "stream" | "upload" | "playlists" | "search" | "artists";
 
 export function MobileMusicApp() {
   const [activeTab, setActiveTab] = useState<Tab>("stream");
@@ -33,6 +34,7 @@ export function MobileMusicApp() {
   // Only show upload tab for admin users
   const baseTabs = [
     { id: "stream" as const, label: "Discover", description: "Explore music" },
+    { id: "artists" as const, label: "Artists", description: "Browse artists" },
     { id: "playlists" as const, label: "Playlists", description: "Your collections" },
     { id: "search" as const, label: "Search", description: "Find tracks" },
   ];
@@ -65,6 +67,7 @@ export function MobileMusicApp() {
             >
               {activeTab === "stream" && <MobileStreamTab />}
               {activeTab === "upload" && <MobileUploadTab />}
+              {activeTab === "artists" && <MobileArtistsTab />}
               {activeTab === "playlists" && <MobilePlaylistsTab />}
               {activeTab === "search" && <MobileSearchTab />}
             </motion.div>

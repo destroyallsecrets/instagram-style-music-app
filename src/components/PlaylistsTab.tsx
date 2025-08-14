@@ -3,28 +3,33 @@ import { api } from "../../convex/_generated/api";
 import { motion } from "framer-motion";
 import { Library, Plus, Play, Music, Clock, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function PlaylistsTab() {
-  const playlists = useQuery(api.tracks.getPlaylists);
-  const createPlaylist = useMutation(api.tracks.createPlaylist);
+  const playlists = useQuery(api.playlists.getUserPlaylists);
+  const createPlaylist = useMutation(api.playlists.createPlaylist);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [newPlaylistDescription, setNewPlaylistDescription] = useState("");
 
-  const handleCreatePlaylist = (e: React.FormEvent) => {
+  const handleCreatePlaylist = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPlaylistName.trim()) return;
 
-    void createPlaylist({
-      name: newPlaylistName,
-      description: newPlaylistDescription,
-      isPublic: false,
-    }).then(() => {
+    try {
+      await createPlaylist({
+        name: newPlaylistName,
+        description: newPlaylistDescription,
+        isPublic: false,
+      });
       setNewPlaylistName("");
       setNewPlaylistDescription("");
       setShowCreateModal(false);
-    });
+      toast.success("Playlist created successfully!");
+    } catch {
+      toast.error("Failed to create playlist");
+    }
   };
 
   return (
@@ -141,11 +146,11 @@ export function PlaylistsTab() {
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-1">
                       <Music className="w-3 h-3" />
-                      <span>0 tracks</span>
+                      <span>{playlist.trackIds.length} track{playlist.trackIds.length !== 1 ? 's' : ''}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Clock className="w-3 h-3" />
-                      <span>0m 0s</span>
+                      <span>{playlist.isPublic ? 'Public' : 'Private'}</span>
                     </div>
                   </div>
                 </div>
@@ -171,7 +176,7 @@ export function PlaylistsTab() {
           >
             <h3 className="text-xl font-bold text-slate-900 mb-4">Create New Playlist</h3>
 
-            <form onSubmit={handleCreatePlaylist} className="space-y-4">
+            <form onSubmit={(e) => void handleCreatePlaylist(e)} className="space-y-4">
               <div>
                 <label htmlFor="playlistName" className="block text-sm font-semibold text-slate-700 mb-2">
                   Playlist Name *

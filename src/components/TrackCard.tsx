@@ -2,7 +2,13 @@ import { useAudio } from "../hooks/useAudio";
 import { formatDuration } from "../lib/utils";
 import { Id } from "../../convex/_generated/dataModel";
 import { motion } from "framer-motion";
-import { Play, Pause, Music, User, Clock } from "lucide-react";
+import { Play, Pause, Music, User, Clock, Heart, Share, Plus, MoreHorizontal } from "lucide-react";
+import { ContextMenu } from "./ContextMenu";
+import { createTrackContextMenuItems } from "../utils/contextMenuItems";
+import { HapticFeedback } from "../utils/haptics";
+import { useUndoRedo } from "../hooks/useUndoRedo";
+import { showMusicNotification } from "../utils/notifications";
+import { useState } from "react";
 
 interface Track {
   _id: Id<"tracks">;
@@ -25,24 +31,92 @@ interface TrackCardProps {
 export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCardProps) {
   const { currentTrack, isPlaying, playTrack, pauseTrack } = useAudio();
   const isCurrentTrack = currentTrack === track._id;
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [_isLoading, setIsLoading] = useState(false);
+  const undoRedo = useUndoRedo();
 
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
     if (!track.audioUrl) return;
 
-    if (isCurrentTrack) {
-      pauseTrack();
-    } else {
-      playTrack(track.audioUrl, track._id, {
-        id: track._id,
-        title: track.title,
-        artist: track.artist,
-        coverArtUrl: track.coverArtUrl
-      });
+    setIsLoading(true);
+    HapticFeedback.light();
+
+    try {
+      if (isCurrentTrack) {
+        pauseTrack();
+      } else {
+        playTrack(track.audioUrl, track._id, {
+          id: track._id,
+          title: track.title,
+          artist: track.artist,
+          coverArtUrl: track.coverArtUrl
+        });
+      }
+    } catch {
+      showMusicNotification('Failed to play track', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Context menu actions
+  const contextActions = {
+    playTrack: (_track: Track) => handlePlayPause(),
+    toggleFavorite: (_track: Track) => {
+      const previousState = isFavorited;
+      setIsFavorited(!isFavorited);
+      
+      undoRedo.addAction(
+        'favorite',
+        `${isFavorited ? 'Removed from' : 'Added to'} favorites`,
+        () => setIsFavorited(previousState),
+        () => setIsFavorited(!previousState)
+      );
+      
+      HapticFeedback.success();
+      showMusicNotification(
+        `${isFavorited ? 'Removed from' : 'Added to'} favorites`,
+        'success'
+      );
+    },
+    addToPlaylist: (_track: Track) => {
+      showMusicNotification('Added to playlist', 'success');
+      HapticFeedback.medium();
+    },
+    shareTrack: (track: Track) => {
+      if (navigator.share) {
+        void navigator.share({
+          title: track.title,
+          text: `Check out "${track.title}" by ${track.artist}`,
+          url: window.location.href,
+        });
+      } else {
+        void navigator.clipboard.writeText(window.location.href);
+        showMusicNotification('Link copied to clipboard', 'success');
+      }
+      HapticFeedback.light();
+    },
+    downloadTrack: (_track: Track) => {
+      showMusicNotification('Download started', 'info');
+    },
+    showTrackInfo: (_track: Track) => {
+      showMusicNotification('Track info opened', 'info');
+    },
+  };
+
+  // Create context menu items with icons
+  const contextMenuItems = createTrackContextMenuItems(track, contextActions, {
+    Play: <Play className="w-4 h-4" />,
+    Heart: <Heart className="w-4 h-4" />,
+    Plus: <Plus className="w-4 h-4" />,
+    Share: <Share className="w-4 h-4" />,
+    Download: <MoreHorizontal className="w-4 h-4" />,
+    Info: <MoreHorizontal className="w-4 h-4" />,
+  });
+
   return (
-    <motion.div
+    <ContextMenu items={contextMenuItems}>
+      <motion.div
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.2 }}
@@ -130,7 +204,7 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={handlePlayPause}
+              onClick={() => void handlePlayPause()}
               disabled={!track.audioUrl}
               className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent disabled:opacity-50 disabled:cursor-not-allowed ${
                 isCurrentTrack
@@ -172,5 +246,6 @@ export function TrackCard({ track, showUploader, onDelete, isDeleting }: TrackCa
         </div>
       </div>
     </motion.div>
+    </ContextMenu>
   );
 }

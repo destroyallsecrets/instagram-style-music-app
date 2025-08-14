@@ -11,12 +11,16 @@ const applicationTables = {
     coverArtId: v.optional(v.id("_storage")),
     uploadedBy: v.id("users"),
     uploadedAt: v.number(),
+    genre: v.optional(v.string()),
+    audioQuality: v.optional(v.string()), // "128k", "320k", "lossless"
+    allowDownload: v.optional(v.boolean()),
   })
     .index("by_uploaded_at", ["uploadedAt"])
     .index("by_user", ["uploadedBy"])
+    .index("by_genre", ["genre"])
     .searchIndex("by_search", {
       searchField: "title",
-      filterFields: ["artist"],
+      filterFields: ["artist", "genre"],
     }),
 
   feedback: defineTable({
@@ -80,6 +84,70 @@ const applicationTables = {
     .index("by_playlist", ["playlistId"])
     .index("by_track", ["trackId"])
     .index("by_playlist_track", ["playlistId", "trackId"]),
+
+  artistProfiles: defineTable({
+    userId: v.id("users"),
+    displayName: v.string(),
+    bio: v.optional(v.string()),
+    genre: v.optional(v.string()),
+    website: v.optional(v.string()),
+    profileImageId: v.optional(v.id("_storage")),
+    bannerImageId: v.optional(v.id("_storage")),
+    socialLinks: v.optional(v.object({
+      spotify: v.optional(v.string()),
+      bandcamp: v.optional(v.string()),
+      soundcloud: v.optional(v.string()),
+      youtube: v.optional(v.string()),
+    })),
+    customColors: v.optional(v.object({
+      primary: v.string(),
+      secondary: v.string(),
+      accent: v.string(),
+    })),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_genre", ["genre"])
+    .searchIndex("by_name", {
+      searchField: "displayName",
+      filterFields: ["genre"],
+    }),
+
+  releases: defineTable({
+    title: v.string(),
+    artistId: v.id("users"),
+    description: v.optional(v.string()),
+    releaseDate: v.number(),
+    coverArtId: v.optional(v.id("_storage")),
+    releaseType: v.union(v.literal("single"), v.literal("ep"), v.literal("album")),
+    trackIds: v.array(v.id("tracks")),
+    isPublished: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_artist", ["artistId"])
+    .index("by_release_date", ["releaseDate"])
+    .index("by_published", ["isPublished"])
+    .searchIndex("by_title", {
+      searchField: "title",
+      filterFields: ["artistId", "releaseType"],
+    }),
+
+  userPlaylists: defineTable({
+    name: v.string(),
+    description: v.optional(v.string()),
+    userId: v.id("users"),
+    trackIds: v.array(v.id("tracks")),
+    isPublic: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_public", ["isPublic"])
+    .searchIndex("by_name", {
+      searchField: "name",
+      filterFields: ["userId", "isPublic"],
+    }),
 };
 
 export default defineSchema({

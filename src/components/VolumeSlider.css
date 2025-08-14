@@ -1,0 +1,31 @@
+/* Volume Slider Styles */
+.volume-slider {
+  background: linear-gradient(
+    to right,
+    #3b82f6 0%,
+    #3b82f6 var(--volume-percent, 0%),
+    #374151 var(--volume-percent, 0%),
+    #374151 100%
+  );
+}
+
+.volume-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: 2px solid #1e293b;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: 2px solid #1e293b;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

@@ -1,6 +1,7 @@
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { TrackCard } from "./TrackCard";
+import { SkeletonLoader } from "./SkeletonLoader";
 import { motion } from "framer-motion";
 import { Music } from "lucide-react";
 
@@ -9,13 +10,17 @@ export function StreamTab() {
 
   if (tracks === undefined) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
+      <div className="space-y-6">
         <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full mb-4"
-        />
-        <p className="text-slate-300 font-medium">Loading tracks...</p>
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-8"
+        >
+          <p className="text-slate-300 font-medium mb-6">Loading tracks...</p>
+        </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          <SkeletonLoader type="track-card" count={8} />
+        </div>
       </div>
     );
   }

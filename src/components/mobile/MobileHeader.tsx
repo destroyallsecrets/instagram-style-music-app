@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Waves, Settings, Bell } from "lucide-react";
+import { Waves } from "lucide-react";
 import { AuthComponent } from "../AuthComponent";
 
 interface MobileHeaderProps {
@@ -30,36 +30,15 @@ export function MobileHeader({ isScrolled }: MobileHeaderProps) {
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
-                SoundWave
+                OWSEwave
               </h1>
-              <p className="text-xs text-slate-400 -mt-0.5">Your Music Universe</p>
             </div>
           </motion.div>
 
           {/* Right Actions */}
-          <div className="flex items-center space-x-2">
-            {/* Notifications */}
-            <motion.button
-              type="button"
-              whileTap={{ scale: 0.9 }}
-              className="w-10 h-10 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 flex items-center justify-center"
-            >
-              <Bell className="w-5 h-5 text-slate-300" />
-            </motion.button>
-
-            {/* Settings */}
-            <motion.button
-              type="button"
-              whileTap={{ scale: 0.9 }}
-              className="w-10 h-10 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 flex items-center justify-center"
-            >
-              <Settings className="w-5 h-5 text-slate-300" />
-            </motion.button>
-
+          <div className="flex items-center">
             {/* Auth Component */}
-            <div className="ml-2">
-              <AuthComponent />
-            </div>
+            <AuthComponent />
           </div>
         </div>
       </div>

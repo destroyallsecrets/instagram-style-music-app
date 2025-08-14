@@ -10,10 +10,11 @@ import {
   AudioProvider,
   MusicWidget
 } from "./index";
-import { Play, Upload, Library, Search, Waves } from "lucide-react";
+import { ArtistsTab } from "./ArtistsTab";
+import { Play, Upload, Library, Search, Waves, Users } from "lucide-react";
 import { isAdminUser } from "../utils/auth";
 
-type Tab = "stream" | "upload" | "playlists" | "search";
+type Tab = "stream" | "upload" | "playlists" | "search" | "artists";
 
 export function MusicApp() {
   const [activeTab, setActiveTab] = useState<Tab>("stream");
@@ -23,6 +24,7 @@ export function MusicApp() {
   // Only show upload tab for admin users
   const baseTabs = [
     { id: "stream" as const, label: "Discover", icon: Play, description: "Explore music" },
+    { id: "artists" as const, label: "Artists", icon: Users, description: "Browse artists" },
     { id: "playlists" as const, label: "Playlists", icon: Library, description: "Your collections" },
     { id: "search" as const, label: "Search", icon: Search, description: "Find tracks" },
   ];
@@ -47,7 +49,7 @@ export function MusicApp() {
             <div className="flex items-center justify-center space-x-2 mb-2 sm:mb-4">
               <Waves className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
               <h2 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-slate-100 via-blue-300 to-purple-300 bg-clip-text text-transparent">
-                Your Music Universe
+                OWSEwave
               </h2>
             </div>
             <p className="text-sm sm:text-lg text-slate-300 max-w-2xl mx-auto px-4">
@@ -104,6 +106,7 @@ export function MusicApp() {
         >
           {activeTab === "stream" && <StreamTab />}
           {activeTab === "upload" && <UploadTab />}
+          {activeTab === "artists" && <ArtistsTab />}
           {activeTab === "playlists" && <PlaylistsTab />}
           {activeTab === "search" && <SearchTab />}
         </motion.div>
